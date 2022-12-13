@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace AdventOfCode;
 
@@ -20,7 +21,7 @@ public static class Utils
 
         foreach (var method in methods)
         {
-            string output = await (Task<string>) method.Invoke(year, new Object[0]);
+            var output = await ((Task<string>) method.Invoke(year, Array.Empty<object>())!)!;
             Console.WriteLine($"-- Output for {method.Name} --");
             Console.WriteLine($"Answer: {output}");
             Console.WriteLine();
@@ -37,5 +38,12 @@ public static class Utils
             }
             Console.WriteLine();
         }
+    }
+
+    public static StreamReader NewPuzzleReader(string year, [CallerMemberName] string callingMember = null, string puzzle = "1")
+    {
+        var rawDay = callingMember.Split("_")[1];
+        var fileName = CreateFileName(rawDay, puzzle, year);
+        return new StreamReader(fileName);
     }
 }

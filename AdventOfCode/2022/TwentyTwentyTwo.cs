@@ -1,13 +1,24 @@
-using System.Collections;
-using System.Text;
-
-namespace AdventOfCode;
+namespace AdventOfCode._2022;
 
 public class TwentyTwentyTwo : Year {
     public string Year
     {
         get => "2022";
         set { }
+    }
+
+    // Method names must start with "Day_X"
+    public async Task<string> Template_1()
+    {
+        var result = ""
+
+        using var reader = Utils.NewPuzzleReader(Year);
+        do
+        {
+
+        } while (!reader.EndOfStream);
+
+        return result;
     }
 
     public async Task<string> Day_1()
@@ -559,6 +570,22 @@ public class TwentyTwentyTwo : Year {
         return answer;
     }
 
-    
+    public async Task<string> Day_13()
+    {
+        var result = ""
+
+        using var reader = Utils.NewPuzzleReader(Year);
+        do
+        {
+            var first = await reader.ReadLineAsync();
+            var second = await reader.ReadLineAsync();
+            var _ = await reader.ReadLineAsync();
+            
+            
+        } while (!reader.EndOfStream);
+
+        return result;
+    }
+
 }
 
