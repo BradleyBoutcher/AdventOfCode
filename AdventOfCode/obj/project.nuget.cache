@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "RZHazA+8B6niGpGYKn14QsJF6fnXXvS8i/zHwAqdHtm00gv7jg37WrsHgH82xafHbEnjeGdciP980s8OCG0+GA==",
+  "dgSpecHash": "afHVSkF616ppM2dmBC1YXxE6WqDZCwQH1j+Dfld+a5eUp+UB5ZsBbmD6THInQMMipYo32pSix1LNqDM8mEOyxg==",
   "success": true,
   "projectFilePath": "/Users/b.boutcher/RiderProjects/AdventOfCode/AdventOfCode/AdventOfCode.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/Users/b.boutcher/.nuget/packages/newtonsoft.json/13.0.2/newtonsoft.json.13.0.2.nupkg.sha512"
+  ],
   "logs": []
 }

@@ -1,3 +1,9 @@
+using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 namespace AdventOfCode._2022;
 
 public class TwentyTwentyTwo : Year {
@@ -8,63 +14,34 @@ public class TwentyTwentyTwo : Year {
     }
 
     // Method names must start with "Day_X"
-    public async Task<string> Template_1()
+    public async Task<string> Template_1(string input)
     {
-        var result = ""
-
-        using var reader = Utils.NewPuzzleReader(Year);
-        do
-        {
-
-        } while (!reader.EndOfStream);
+        var result = "";
 
         return result;
     }
 
-    public async Task<string> Day_1()
+    public async Task<string> Day_1(string input)
     {
-        var highestCalories = 0;
-        var currentCalories = 0;
-        var highestElf = 0;
-        var currentElf = 0;
-        
-        var fileName = Utils.CreateFileName("1", "1", Year);
-        var reader = new StreamReader(fileName);
-
-        while (!reader.EndOfStream)
-        {
-            var line = await reader.ReadLineAsync();
-            if (line is null or "")
-            {
-                currentCalories = 0;
-                currentElf++;
-                continue;
-            }
-
-            currentCalories += int.Parse(line);
-            if (currentCalories > highestCalories)
-            {
-                // Console.WriteLine(currentCalories);
-                // Console.WriteLine(currentElf);
-                highestCalories = currentCalories;
-                highestElf = currentElf;
-            }
-        }
-
-        return highestCalories.ToString();
+        return input
+            .Split("\n\n")
+            .Select(s => s.Split())
+            .Select(s => s
+                .Select(Int32.Parse)
+                .Sum())
+            .Max()
+            .ToString();
     }
 
-    public async Task<string> Day_1_PartTwo() 
+    public async Task<string> Day_1_PartTwo(string input)
     {
-        var fileName = Utils.CreateFileName("1", "1", Year);
-        var reader = new StreamReader(fileName);
+        var lines = input.Split("\n");
 
         List<int> calorieTotals = new List<int>();
         var currentCalories = 0;
 
-        while (!reader.EndOfStream)
+        foreach (var line in lines)
         {
-            var line = await reader.ReadLineAsync();
             if (line is null or "")
             {
                 calorieTotals.Add(currentCalories);
@@ -82,10 +59,9 @@ public class TwentyTwentyTwo : Year {
             .ToString();
     }
 
-    public async Task<string> Day_2()
+    public async Task<string> Day_2(string input)
     {
-        var fileName = Utils.CreateFileName("2", "1", Year);
-        var reader = new StreamReader(fileName);
+        var lines = input.Split("\n");
 
         int X = 1;
         int Y = 2;
@@ -97,11 +73,10 @@ public class TwentyTwentyTwo : Year {
 
         int totalScore = 0;
 
-        while (!reader.EndOfStream)
+        foreach (var line in lines)
         {
-            var line = (await reader.ReadLineAsync())?.Split();
-            var opponent = line[0];
-            var self = line[1];
+            var opponent = line[0].ToString();
+            var self = line[2].ToString();
 
             switch (opponent, self)
             {
@@ -131,10 +106,9 @@ public class TwentyTwentyTwo : Year {
         return totalScore.ToString();
     }
 
-    public async Task<string> Day_2_PartTwo()
+    public async Task<string> Day_2_PartTwo(string input)
     {
-        var fileName = Utils.CreateFileName("2", "1", Year);
-        var reader = new StreamReader(fileName);
+        var lines = input.Split("\n");
 
         int rock = 1;
         int paper = 2;
@@ -146,11 +120,10 @@ public class TwentyTwentyTwo : Year {
 
         int totalScore = 0;
 
-        while (!reader.EndOfStream)
+        foreach (var line in lines)
         {
-            var line = (await reader.ReadLineAsync())?.Split();
-            var opponent = line[0];
-            var self = line[1];
+            var opponent = line[0].ToString();
+            var self = line[2].ToString();
 
             switch (opponent, self)
             {
@@ -180,15 +153,14 @@ public class TwentyTwentyTwo : Year {
         return totalScore.ToString();
     }
 
-    public async Task<string> Day_3()
+    public async Task<string> Day_3(string input)
     {
-        var fileName = Utils.CreateFileName("3", "1", Year);
-        var reader = new StreamReader(fileName);
+        var lines = input.Split("\n");
 
         var totalPriority = 0;
-        while (!reader.EndOfStream)
+        foreach (var item in lines)
         {
-            var line = (await reader.ReadLineAsync())?.ToCharArray();
+            var line = item.ToCharArray();
             
             var firstCompartment = line.Take(line.Length / 2).ToArray();
             var secondCompartment = line.Skip(line.Length / 2).ToArray();
@@ -208,17 +180,16 @@ public class TwentyTwentyTwo : Year {
         return totalPriority.ToString();
     }
 
-    public async Task<string> Day_3_PartTwo()
+    public async Task<string> Day_3_PartTwo(string input)
     {
-        var fileName = Utils.CreateFileName("3", "1", Year);
-        var reader = new StreamReader(fileName);
+        var lines = input.Split("\n");
 
         var totalPriority = 0;
-        while (!reader.EndOfStream)
+        for (int i = 0; i < lines.Length; i+=3)
         {
-            var firstRucksack = (await reader.ReadLineAsync())?.ToCharArray();
-            var secondRucksack = (await reader.ReadLineAsync())?.ToCharArray();
-            var thirdRucksack = (await reader.ReadLineAsync())?.ToCharArray();
+            var firstRucksack = lines[i].ToCharArray();
+            var secondRucksack = lines[i+1].ToCharArray();
+            var thirdRucksack = lines[i+2].ToCharArray();
 
             var intersect = firstRucksack
                 .Intersect(secondRucksack)
@@ -238,15 +209,14 @@ public class TwentyTwentyTwo : Year {
         return totalPriority.ToString();
     }
 
-    public async Task<string> Day_4()
+    public async Task<string> Day_4(string input)
     {
-        var fileName = Utils.CreateFileName("4", "1", Year);
-        var reader = new StreamReader(fileName);
+        var lines = input.Split("\n");
 
         var completelyOverlappingSegments = 0;
-        while (!reader.EndOfStream)
+        foreach (var line in lines)
         {
-            var assignments = (await reader.ReadLineAsync()).Split(',');
+            var assignments = line.Split(',');
 
             var first = assignments[0].Split('-');
             var second = assignments[1].Split('-');
@@ -265,15 +235,14 @@ public class TwentyTwentyTwo : Year {
         return completelyOverlappingSegments.ToString();
     }
 
-    public async Task<string> Day_4_Part2()
+    public async Task<string> Day_4_Part_2(string input)
     {
-        var fileName = Utils.CreateFileName("4", "1", Year);
-        var reader = new StreamReader(fileName);
+        var lines = input.Split("\n");
 
         var overlappingSegments = 0;
-        while (!reader.EndOfStream)
+        foreach (var line in lines)
         {
-            var assignments = (await reader.ReadLineAsync()).Split(',');
+            var assignments = line.Split(',');
 
             var first = assignments[0].Split('-');
             var second = assignments[1].Split('-');
@@ -292,7 +261,7 @@ public class TwentyTwentyTwo : Year {
         return overlappingSegments.ToString();
     }
 
-    public async Task<string> Day_5()
+    public async Task<string> Day_5(string input)
     {
         var crates = new[,]
         {
@@ -377,12 +346,11 @@ public class TwentyTwentyTwo : Year {
         };
         var height = crates.Length;
 
-        var fileName = Utils.CreateFileName("5", "1", Year);
-        var reader = new StreamReader(fileName);
+        var lines = input.Split("\n");
 
-        while (!reader.EndOfStream)
+        foreach (var line in lines)
         {
-            var command = (await reader.ReadLineAsync()).Split(" ");
+            var command = line.Split(" ");
 
             var toMove = int.Parse(command[1]);
             var from = int.Parse(command[3]) - 1;
@@ -434,7 +402,7 @@ public class TwentyTwentyTwo : Year {
         return answer;
     }
 
-    public async Task<string> Day_5_Part2()
+    public async Task<string> Day_5_Part2(string input)
     {
         var crates = new[,]
         {
@@ -519,17 +487,16 @@ public class TwentyTwentyTwo : Year {
         };
         var height = crates.Length;
 
-        var fileName = Utils.CreateFileName("5", "1", Year);
-        var reader = new StreamReader(fileName);
+        var lines = input.Split("\n");
 
-        while (!reader.EndOfStream)
+        foreach (var line in lines)
         {
-            var command = (await reader.ReadLineAsync()).Split(" ");
+            var command = line.Split(" ");
 
             var toMove = int.Parse(command[1]);
             var from = int.Parse(command[3]) - 1;
             var to = int.Parse(command[5]) - 1;
-            
+
             var grabbed = new Stack<string>();
             var bottom = -1;
 
@@ -570,21 +537,128 @@ public class TwentyTwentyTwo : Year {
         return answer;
     }
 
-    public async Task<string> Day_13()
+    public async Task<string> Day_6(string input)
     {
-        var result = ""
+        var visited = new HashSet<char>();
 
-        using var reader = Utils.NewPuzzleReader(Year);
-        do
+        for (int i = 0; i < input.Length; i++)
         {
-            var first = await reader.ReadLineAsync();
-            var second = await reader.ReadLineAsync();
-            var _ = await reader.ReadLineAsync();
-            
-            
-        } while (!reader.EndOfStream);
+            visited.Clear();
 
-        return result;
+            var noCollision =
+                visited.Add(input[i]) &&
+                visited.Add(input[i + 1]) &&
+                visited.Add(input[i + 2]) &&
+                visited.Add(input[i + 3]);
+ 
+            if (noCollision) return (i + 4).ToString();
+        }
+
+        return 0.ToString();
+    }
+
+    public async Task<string> Day_7(string input)
+    {
+        
+    }
+
+    public async Task<string> Day_6_Part_2(string input)
+    {
+        var visited = new HashSet<char>();
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            visited.Clear();
+            
+            var noCollision = true;
+            
+            for (int j = 0; j < 14; j++)
+            {
+                noCollision = visited.Add(input[i + j]);
+                if (!noCollision) break;
+            }
+
+            if (noCollision) return (i + 14).ToString();
+        }
+
+        return 0.ToString();
+    }
+
+    public async Task<string> Day_13(string input)
+    {
+        var index = 0;
+        var total = 0;
+
+        var groups = input.Split("\n\n");
+        foreach (var group in groups)
+        {
+            index++;
+            var segment = group.Split("\n");
+
+            var rawFirstLine = segment[0];
+            var rawSecondLine = segment[1];
+
+            var firstRoot = JsonDocument.Parse(rawFirstLine).RootElement;
+            var secondRoot = JsonDocument.Parse(rawSecondLine).RootElement;
+
+            if (Compare(firstRoot, secondRoot) < 0) total += index;
+        };
+
+        return total.ToString();
+    }
+
+    public async Task<string> Day_13_Part_2(string input)
+    {
+        var index = 0;
+        var total = 0;
+
+        var packets = input
+            .Split("\n\n")
+            .Select(pair => pair.Split("\n"))
+            .Select(pair => (Left: JsonDocument.Parse(pair[0]).RootElement, Right: JsonDocument.Parse(pair[1]).RootElement))
+            .SelectMany(pair => new [] {pair.Left, pair.Right})
+            .Append(JsonDocument.Parse("[[2]]").RootElement)
+            .Append(JsonDocument.Parse("[[6]]").RootElement)
+            .OrderBy(packet => packet, Comparer<JsonElement>.Create((l, r) => Compare(l, r)));
+
+        var divider1 = packets
+            .Select((packet, index) => (Packet: packet, Index: index + 1))
+            .First(item => Compare(item.Packet, JsonDocument.Parse("[[2]]").RootElement) == 0).Index;
+
+        var divider2 = packets
+            .Select((packet, index) => (Packet: packet, Index: index + 1))
+            .First(item => Compare(item.Packet, JsonDocument.Parse("[[6]]").RootElement) == 0).Index;
+
+        return (divider1 * divider2).ToString();
+    }
+
+    private int Compare(JsonElement left, JsonElement right)
+    {
+        if (left.ValueKind == JsonValueKind.Number && right.ValueKind == JsonValueKind.Number)
+        {
+            return left.GetInt32() - right.GetInt32();
+        } 
+        if (left.ValueKind == JsonValueKind.Number)
+        {
+            return Compare(JsonDocument.Parse($"[{left.GetInt32()}]").RootElement, right);
+        } 
+        if (right.ValueKind == JsonValueKind.Number)
+        {
+            return Compare(left, JsonDocument.Parse($"[{right.GetInt32()}]").RootElement);
+        }
+
+        foreach (var (nextLeft, nextRight) in Enumerable.Zip(left.EnumerateArray(), right.EnumerateArray()))
+        {
+            var current = Compare(nextLeft, nextRight);
+            if (current == 0)
+            {
+                continue;
+            }
+
+            return current;
+        }
+
+        return left.GetArrayLength() - right.GetArrayLength();
     }
 
 }

@@ -28,3 +28,5 @@
 /Users/b.boutcher/RiderProjects/AdventOfCode/AdventOfCode/obj/Debug/net6.0/AdventOfCode.pdb
 /Users/b.boutcher/RiderProjects/AdventOfCode/AdventOfCode/obj/Debug/net6.0/AdventOfCode.genruntimeconfig.cache
 /Users/b.boutcher/RiderProjects/AdventOfCode/AdventOfCode/obj/Debug/net6.0/ref/AdventOfCode.dll
+/Users/b.boutcher/RiderProjects/AdventOfCode/AdventOfCode/bin/Debug/net6.0/Newtonsoft.Json.dll
+/Users/b.boutcher/RiderProjects/AdventOfCode/AdventOfCode/obj/Debug/net6.0/AdventOfCode.csproj.CopyComplete

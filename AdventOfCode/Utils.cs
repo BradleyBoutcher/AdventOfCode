@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -19,12 +20,26 @@ public static class Utils
             .GetMethods(BindingFlags.Public | BindingFlags.Instance)
             .Where(item => item.Name.StartsWith("Day"));
 
+        var times = new Dictionary<string, long>();
         foreach (var method in methods)
         {
-            var output = await ((Task<string>) method.Invoke(year, Array.Empty<object>())!)!;
+            var fileName = CreateFileName(method.Name.Split('_')[1], "1", year.Year);
+            var file = await new StreamReader(fileName).ReadToEndAsync();
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var output = await (Task<string>) method.Invoke(year, new []{ file });
+            stopwatch.Stop();
             Console.WriteLine($"-- Output for {method.Name} --");
             Console.WriteLine($"Answer: {output}");
             Console.WriteLine();
+            times.Add(method.Name, stopwatch.ElapsedMilliseconds);
+        }
+
+        Console.WriteLine("Elapsed Time in MS");
+        foreach (var (key, value) in times)
+        {
+            Console.WriteLine(key + ": " + value + "ms");
         }
     }  
 
