@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -557,11 +558,6 @@ public class TwentyTwentyTwo : Year {
         return 0.ToString();
     }
 
-    public async Task<string> Day_7(string input)
-    {
-        
-    }
-
     public async Task<string> Day_6_Part_2(string input)
     {
         var visited = new HashSet<char>();
@@ -582,6 +578,42 @@ public class TwentyTwentyTwo : Year {
         }
 
         return 0.ToString();
+    }
+
+    public async Task<string> Day_7(string input)
+    {
+        var commands = input.Split("\n");
+
+        var tree = new Stack<string>();
+        var directories = new Dictionary<string, int>();
+
+        foreach (var command in commands)
+        {
+            var pieces = command.Split(" ");
+
+            if (pieces[0] == "$")
+            {
+                if (pieces[1] != "cd") continue;
+
+                if (pieces[2] == ".." && tree.Count > 0) tree.Pop();
+                else tree.Push(pieces[2]);
+            }
+            else if (pieces[0] != "dir")
+            {
+                // this entry is a file size
+                var size = Int32.Parse(pieces[0]);
+                // add the file size to each parent's dictionary entry
+                foreach (var s in tree)
+                {
+                    var exists = directories.TryGetValue(s, out _);
+                    if (exists) directories[s] += size;
+                    else directories.Add(s, size);
+                }
+            }
+        }
+
+        var total = directories.Values.Where(s => s < 100000).Sum();
+        return total.ToString();
     }
 
     public async Task<string> Day_13(string input)
