@@ -808,7 +808,7 @@ public class TwentyTwentyTwo : Year {
         
         return visited.Count.ToString();
     }
-   
+
     public async Task<string> Day_9_Part_2(string input)
     {
         var commands = input.Split("\n");
@@ -845,29 +845,25 @@ public class TwentyTwentyTwo : Year {
             return head;
         }
 
+        (int, int) Increment((int, int) coord, (int, int) delta)
+        {
+            coord.Item1 += delta.Item1;
+            coord.Item2 += delta.Item2;
+            return coord;
+        }
+
         (int, int) MoveTail((int, int) head, (int, int) tail)
         {
             var xd = head.Item1 - tail.Item1;
             var yd = head.Item2 - tail.Item2;
+            
+            var totalDistance = Math.Abs(xd) + Math.Abs(yd);
+            var sameRowOrColumn = head.Item1 == tail.Item1 || head.Item2 == tail.Item2;
 
-            var horizontallyDistant = Math.Abs(xd) > 1;
-            var verticallyDistant = Math.Abs(yd) > 1;
-
-            if (horizontallyDistant)
+            if (totalDistance > 2 || (totalDistance > 1 && sameRowOrColumn))
             {
-                tail.Item2 = head.Item2;
-                tail.Item1 = head.Item1 > tail.Item1
-                    ? head.Item1 - 1
-                    : head.Item1 + 1;
-            };
-
-            if (verticallyDistant)
-            {
-                tail.Item1 = head.Item1;
-                tail.Item2 = head.Item2 > tail.Item2
-                    ? head.Item2 - 1
-                    : head.Item2 + 1;
-            };
+                return Increment(tail, (Math.Sign(xd), Math.Sign(yd)));
+            }
 
             return tail;
         }
@@ -896,7 +892,7 @@ public class TwentyTwentyTwo : Year {
         PrintForest(100, 100, visited);
         return visited.Count.ToString();
     }
-    
+
     public async Task<string> Day_13(string input)
     {
         var index = 0;
