@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Microsoft.Toolkit.HighPerformance;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -617,136 +618,122 @@ public class TwentyTwentyTwo : Year {
         return total.ToString();
     }
 
-    public async Task<string> Day_8(string input)
+    public async Task<string> Day_7_Part_2(string input)
     {
-        var result = "";
-        
-        // [30373]
-        // 25512
-        // 65332
-        // 33549
-        // 35390
+        var commands = input.Split("\n");
 
-        var rows = input.Split("\n");
+        var tree = new Stack<string>();
+        var directories = new Dictionary<string, int>();
 
-        // 0-index height and length
-        var height = rows.Length - 1;
-        var length = rows[0].Length - 1;
-
-        // top down
-        char[] tallestNorthTrees = rows[0].ToCharArray();
-        char[] tallestSouthTrees = rows[height - 1].ToCharArray();
-
-        var visited = new Dictionary<(int, int), int>();
-        for (int i = 1; i < 50; i++)
+        foreach (var command in commands)
         {
-            var northIndex = i;
-            var southIndex = height - i;
+            var pieces = command.Split(" ");
 
-            var tallestSouthWesternTree = -1;
-            var tallestSouthEasternTree = -1;
-            var tallestNorthWesternTree = -1;
-            var tallestNorthEasternTree = -1;
-
-            for (int j = 0; j < height; j++)
+            if (pieces[0] == "$")
             {
-                var eastIndex = j;
-                var westIndex = length - j;
+                if (pieces[1] != "cd") continue;
 
-                var aboveTree = tallestNorthTrees[j];
-                var belowTree = tallestSouthTrees[j];
-
-                // north east perspective
-                if (!visited.ContainsKey((northIndex, eastIndex)))
+                if (pieces[2] == ".." && tree.Count > 0) tree.Pop();
+                else
                 {
-                    var northEastTree = rows[northIndex][eastIndex] - '0';
-                    if (northEastTree > aboveTree)
-                    {
-                        tallestNorthTrees[j] = rows[northIndex][eastIndex];
-                        if (northEastTree > tallestNorthEasternTree)
-                        {
-                            tallestNorthEasternTree = northEastTree;
-                        }
-
-                        visited.Add((northIndex, eastIndex), northEastTree);
-                    } else if (northEastTree > tallestNorthEasternTree)
-                    {
-                        tallestNorthEasternTree = northEastTree;
-
-                        visited.Add((northIndex, eastIndex), northEastTree);
-                    }
+                    var path = string.Join("", tree.Reverse()) + pieces[2];
+                    tree.Push(path);
                 }
-
-                // north west perspective
-                if (!visited.ContainsKey((northIndex, westIndex)))
+            }
+            else if (pieces[0] != "dir" && pieces[0] != "$")
+            {
+                var size = Int32.Parse(pieces[0]);
+                foreach (var s in tree)
                 {
-                    var northWestTree = rows[northIndex][westIndex] - '0';
-                    if (northWestTree > aboveTree)
-                    {
-                        tallestNorthTrees[j] = rows[northIndex][westIndex];
-                        if (northWestTree > tallestNorthWesternTree)
-                        {
-                            tallestNorthWesternTree = northWestTree;
-                        }
-
-                        visited.Add((northIndex, westIndex), northWestTree);
-                    } else if (northWestTree > tallestNorthWesternTree)
-                    {
-                        tallestNorthWesternTree = northWestTree;
-                        
-                        visited.Add((northIndex, westIndex), northWestTree);
-                    }
-                }
-                
-
-                // south west perspective
-                if (!visited.ContainsKey((southIndex, westIndex)))
-                {
-                    var southWestTree = rows[southIndex][westIndex] - '0';
-                    if (southWestTree > belowTree)
-                    {
-                        tallestSouthTrees[j] = rows[southIndex][westIndex];
-                        if (southWestTree > tallestSouthWesternTree)
-                        {
-                            tallestSouthWesternTree = southWestTree;
-                        }
-
-                        visited.Add((southIndex, westIndex), southWestTree);
-                    } else if (southWestTree > tallestSouthWesternTree)
-                    {
-                        tallestSouthWesternTree = southWestTree;
-                        
-                        visited.Add((southIndex, westIndex), southWestTree);
-                    }
-                }
-                
-                // south east perspective
-                if (!visited.ContainsKey((southIndex, eastIndex)))
-                {
-                    var southEastTree = rows[southIndex][eastIndex] - '0';
-                    if (southEastTree > belowTree)
-                    {
-                        tallestSouthTrees[j] = rows[southIndex][eastIndex];
-                        if (southEastTree > tallestSouthEasternTree)
-                        {
-                            tallestSouthEasternTree = southEastTree;
-                        }
-
-                        visited.Add((southIndex, eastIndex), southEastTree);
-                    } else if (southEastTree > tallestSouthEasternTree)
-                    {
-                        tallestSouthEasternTree = southEastTree;
-
-                        visited.Add((southIndex, eastIndex), southEastTree);
-                    }
+                    directories[s] = directories.GetValueOrDefault(s) + size;
                 }
             }
         }
 
-        //PrintForest(height, length, visited);
-        return (visited.Count + 100).ToString();
+        var spaceRemaining = 70000000 - directories.Values.Max();
+        return directories.Values
+            .Where(x => spaceRemaining + x >= 30000000)
+            .Min()
+            .ToString();
     }
 
+    public async Task<string> Day_8(string input)
+    {
+        var lines = input.Split("\n");
+    
+        string CountTallestTrees()
+        {
+            Dictionary<(int, int), int> record = new Dictionary<(int, int), int>();
+    
+            Span2D<int> trees = new Span2D<int>(new int[100,100]);
+            var rows = lines.Length;
+            var columns = lines[0].Length;
+
+            var edges = (rows * 2) + ((columns - 2) * 2);
+            var total = edges;
+    
+            for (int row = 0; row < rows; row++)
+            {
+                for (int col = 0; col < columns; col++)
+                {
+                    trees[row, col] = lines[row][col] - '0';
+                }
+            }
+    
+            for (int row = 1; row < rows - 1; row++)
+            {
+                for (int col = 1; col < columns - 1; col++)
+                {
+                    var currentTree = trees[row, col];
+        
+                    var left = trees.GetRowSpan(row)[..col].ToArray().DefaultIfEmpty();
+                    var right = trees.GetRowSpan(row)[(col + 1)..columns].ToArray().DefaultIfEmpty();
+                    var top = trees.GetColumn(col).ToArray()[..row].DefaultIfEmpty();
+                    var bottom = trees.GetColumn(col).ToArray()[(row + 1)..rows].DefaultIfEmpty();
+        
+                    if (left.Max() < currentTree || right.Max() < currentTree || top.Max() < currentTree || bottom.Max() < currentTree)
+                    {
+                        total++;
+                        record.Add((row, col), currentTree);
+                    }
+                }
+            }
+            // PrintForest(rows, columns, record);
+            return total.ToString();
+        }
+    
+        return await Task.FromResult(CountTallestTrees());
+    }
+
+    public async Task<string> Day_8_Part_2(string input)
+    {
+        var trees = input.Split("\n");
+
+        List<int> scenicScores = new List<int>();
+        for (int i = 0; i < trees.Length; i++)
+        {
+            for (int j = 0; j < trees[i].Length; j++)
+            {
+                int left = CountScenicScore(j, i, -1, 0, trees[i][j]);
+                int right = CountScenicScore(j, i, 1, 0, trees[i][j]);
+                int up = CountScenicScore(j, i, 0, -1, trees[i][j]);
+                int down = CountScenicScore(j, i, 0, 1, trees[i][j]);
+                scenicScores.Add(left * right * up * down);
+            }
+        }
+
+        int CountScenicScore(int x, int y, int xd, int yd, char startValue)
+        {
+            if (x == 0 || x == trees.Length - 1 || y == 0 || y == trees.Length - 1)
+                return 0;
+            if (startValue <= trees[y + yd][x + xd])
+                return 1 ;
+
+            return 1 + CountScenicScore(x + xd,y + yd,xd, yd, startValue);
+        }
+
+        return $"{scenicScores.Max()}";
+    }
     private void PrintForest(int height, int length, Dictionary<(int, int), int> visited)
     {
         Console.WriteLine();
@@ -762,6 +749,154 @@ public class TwentyTwentyTwo : Year {
         }
         Console.WriteLine();
     }
+
+    public async Task<string> Day_9(string input)
+    {
+        var commands = input.Split("\n");
+
+        (int, int) tail = (0, 0);
+        (int, int) head = (0, 0);
+
+        HashSet<(int X, int Y)> visited = new HashSet<(int X, int Y)>();
+        
+        foreach (var command in commands)
+        {
+            var cmd = command.Split(" ");
+            var distance = Int32.Parse(cmd[1]);
+            var direction = cmd[0];
+
+            if (distance == 0) continue;
+
+            for (var i = 0; i < distance; i++)
+            {
+                switch (direction)
+                {
+                    case "U": head.Item2--;
+                        break;
+                    case "D": head.Item2++; 
+                        break;
+                    case "L": head.Item1--; 
+                        break;
+                    case "R": head.Item1++; 
+                        break;
+                }
+
+                var xd = head.Item1 - tail.Item1;
+                var yd = head.Item2 - tail.Item2;
+                var horizontallyDistant = Math.Abs(xd) > 1;
+                var verticallyDistant = Math.Abs(yd) > 1;
+
+                if (horizontallyDistant)
+                {
+                    tail.Item2 = head.Item2;
+                    tail.Item1 = head.Item1 > tail.Item1
+                        ? head.Item1 - 1
+                        : head.Item1 + 1;
+                };
+
+                if (verticallyDistant)
+                {
+                    tail.Item1 = head.Item1;
+                    tail.Item2 = head.Item2 > tail.Item2
+                        ? head.Item2 - 1
+                        : head.Item2 + 1;
+                };
+
+                visited.Add(tail);
+            }
+        }
+        
+        return visited.Count.ToString();
+    }
+   
+    public async Task<string> Day_9_Part_2(string input)
+    {
+        var commands = input.Split("\n");
+
+        Dictionary<(int X, int Y), int> visited = new Dictionary<(int X, int Y), int>();
+        (int, int)[] nodes =
+        {
+            (20, 20),
+            (20, 20),
+            (20, 20),
+            (20, 20),
+            (20, 20),
+            (20, 20),
+            (20, 20),
+            (20, 20),
+            (20, 20),
+            (20, 20),
+        };
+        
+        (int, int) MoveHead((int, int) head, string direction)
+        {
+            switch (direction)
+            {
+                case "U": head.Item2--;
+                    break;
+                case "D": head.Item2++; 
+                    break;
+                case "L": head.Item1--; 
+                    break;
+                case "R": head.Item1++; 
+                    break;
+            }
+
+            return head;
+        }
+
+        (int, int) MoveTail((int, int) head, (int, int) tail)
+        {
+            var xd = head.Item1 - tail.Item1;
+            var yd = head.Item2 - tail.Item2;
+
+            var horizontallyDistant = Math.Abs(xd) > 1;
+            var verticallyDistant = Math.Abs(yd) > 1;
+
+            if (horizontallyDistant)
+            {
+                tail.Item2 = head.Item2;
+                tail.Item1 = head.Item1 > tail.Item1
+                    ? head.Item1 - 1
+                    : head.Item1 + 1;
+            };
+
+            if (verticallyDistant)
+            {
+                tail.Item1 = head.Item1;
+                tail.Item2 = head.Item2 > tail.Item2
+                    ? head.Item2 - 1
+                    : head.Item2 + 1;
+            };
+
+            return tail;
+        }
+
+        foreach (var command in commands)
+        {
+            var cmd = command.Split(" ");
+            var distance = Int32.Parse(cmd[1]);
+            var direction = cmd[0];
+            if (distance == 0) continue;
+
+            for (var i = 0; i < distance; i++)
+            {
+                var tracker = new Dictionary<(int, int), int>();
+                nodes[0] = MoveHead(nodes[0], direction);
+
+                for (int j = 1; j < nodes.Length; j++)
+                {
+                    nodes[j] = MoveTail(nodes[j - 1], nodes[j]);
+                    tracker.TryAdd(nodes[j], j);
+                }
+                
+                visited.TryAdd(nodes[9], 0);
+            }
+        }
+        PrintForest(100, 100, visited);
+        return visited.Count.ToString();
+    }
+    
     public async Task<string> Day_13(string input)
     {
         var index = 0;
